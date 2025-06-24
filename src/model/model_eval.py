@@ -25,7 +25,7 @@ model = pickle.load(open('model.pkl','rb'))
 
 y_pred= model.predict(X_test)
 
-with mlflow.start_run(run_name="DVC Model"):
+with mlflow.start_run(run_name="DVC Model") as run:
 
 
     acc = accuracy_score(y_test, y_pred)
@@ -49,6 +49,14 @@ with mlflow.start_run(run_name="DVC Model"):
    # Log the trained model
     signature_ = infer_signature(X_test, model.predict(X_test))
     mlflow.sklearn.log_model(model, 'Best Model', signature= signature_)
+
+    #save run id and model info into JSON file:
+
+    run_info = {'run_id': run.info.run_id, 'model_name':'Best_Model'}
+    report_path = 'reports/run_info.json'
+    with open(report_path, 'w') as file:
+        json.dump(run_info,file,indent=4)
+
 
     metrics_dict = {
         'acc':acc,
